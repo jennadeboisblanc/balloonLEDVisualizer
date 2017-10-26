@@ -1,4 +1,5 @@
 // light modes
+//EDITS BY LIBBY
 int RAINBOW = 0;
 int PULSE = 1;
 int WAVE = 2;
