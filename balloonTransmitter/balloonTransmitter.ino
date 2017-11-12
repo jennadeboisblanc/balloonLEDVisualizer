@@ -1,9 +1,5 @@
-#include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-#include <avr/power.h>
-#endif
-#define PIN 12
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, PIN, NEO_GRB + NEO_KHZ800);
+// Luna Fete 2017
+// Xbee transmitter code to send color data to big balloons
 
 #define DEBUG true
 #define RAINBOW 1
@@ -33,8 +29,6 @@ int startHour, startMin;
 
 void setup()  {
   Serial.begin(9600);
-  strip.begin();
-  strip.show();
   setStartTime(18, 19);
 }
 
@@ -43,6 +37,11 @@ void loop() {
   else if (isTchoupTime()) toTchoup(100);
   else rainbowCycle(10);
   //printTime();
+  sendBalloons();
+}
+
+void sendBalloons() {
+  // TODO
 }
 
 
@@ -129,12 +128,6 @@ void setBalloon(byte ind, byte r, byte g, byte b) {
   }
 }
 
-void showBalloons() {
-  for (int i = 0; i < numBalloons; i++) {
-    strip.setPixelColor(i, strip.Color(balloons[i * 3], balloons[i * 3 + 1], balloons[i * 3 + 2]));
-  }
-  strip.show();
-}
 
 // Adapted from Adafruit Neopixel
 void rainbowCycle(uint8_t wait) {
