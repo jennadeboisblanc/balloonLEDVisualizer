@@ -14,7 +14,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 
 // XBEE CONSTANTS
 bool started = false;   // True: Message is started
-bool ended   = false;    // True: Message is finished
+bool refresh   = false;    // True: Message is finished
 char incomingByte ;     // Variable to store the incoming byte
 char msg[30];           // Incoming message with RGB values for each balloon
 int index;             // Index of array
@@ -28,8 +28,11 @@ void setup() {
 
 void loop() {
   getMessage();
-  setNeopixels();
-  strip.show();
+  if (refresh) {
+    setNeopixels();
+    strip.show();
+    refresh = false;
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -46,12 +49,7 @@ void getMessage() {
   while (Serial.available() > 0) {  //Read the incoming byte
     incomingByte = Serial.read();
     // check for first byte
-    if (DEBUG) {
-      Serial.print(index);
-      Serial.print(" ");
-      int b = incomingByte & 0xFF;
-      Serial.println(b);
-    }
+
     if (!started) {
       if (incomingByte == 47) {
         index = 0;
@@ -59,6 +57,12 @@ void getMessage() {
       }
     }
     else {
+      if (DEBUG) {
+        Serial.print(index);
+        Serial.print(" ");
+        int b = incomingByte & 0xFF;
+        Serial.println(b);
+      }
       // read the byte
       if (index < 30) {
         msg[index] = incomingByte; // Add byte to array
@@ -67,8 +71,8 @@ void getMessage() {
       // we're done
       else {
         index = 0;
-        msg[index] = 0;
         started = false;
+        refresh = true;
         break; // Done reading - exit from while loop!
       }
     }

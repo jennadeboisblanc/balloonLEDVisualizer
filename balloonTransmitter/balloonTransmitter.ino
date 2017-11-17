@@ -30,33 +30,33 @@ int startHour, startMin;
 
 void setup()  {
   Serial.begin(9600);
-  setStartTime(18, 19);
 }
 
 void loop() {
   //  if (isGallierTime()) toGallier(100);
   //  else if (isTchoupTime()) toTchoup(100);
   //  else rainbowCycle(10);
-  //rainbowCycle(10);
-  setAllBalloons(0, 255, 0);
-  long t = millis();
-  while (millis() - t < 500) sendBalloons();
-
-
-  setAllBalloons(0, 0, 255);
-  t = millis();
-  while (millis() - t < 500) sendBalloons();
-
-
-  setAllBalloons(255, 0, 0);
-  t = millis();
-  while (millis() - t < 500) sendBalloons();
-
-  setAllBalloons(0, 255, 255);
-  t = millis();
-  while (millis() - t < 500) sendBalloons();
-
+  rainbowCycle(10);
+  sendBalloons();
+  //sendAndDelay(100);
+  //  setAllBalloons(0, 255, 0);
+  //  sendAndDelay(100);
+  //
+  //
+  //  setAllBalloons(0, 0, 255);
+  //  sendAndDelay(100);
+  //
+  //  setAllBalloons(255, 0, 0);
+  //  sendAndDelay(100);
+  //
+  //  setAllBalloons(0, 255, 255);
+  //  sendAndDelay(100);
   //printTime();
+}
+
+void sendAndDelay(int wait) {
+  long t = millis();
+  while (millis() - t < wait) sendBalloons();
 }
 
 void setAllBalloons(int r, int g, int b) {
@@ -69,82 +69,16 @@ void sendBalloons() {
   Serial.write(balloons, sizeof(balloons));
 }
 
-
-boolean isGallierTime() {
-  for (int i = 17; i < 21; i++) {
-    // 17- 5:52-6:02
-    // 18- 6:52-7:02
-    // 19- 7:52-8:02
-    // 20- 8:52-9:02
-    int startMin = 51;
-    int endMin = 3;
-    if ((hour() == i && minute() > startMin) || (hour() == i + 1 && minute() < endMin)) return true;
-  }
-  if (DEBUG) Serial.println("to gallier");
-  return false;
-}
-
-boolean isTchoupTime() {
-  for (int i = 18; i < 21; i++) {
-    // 18- 6:10 - 6:20
-    int startMin = 10;
-    int endMin = 20;
-    if (hour() == i && minute() > startMin && minute() < endMin) return true;
-  }
-  if (DEBUG) Serial.println("to tchoup");
-  return false;
-}
-
-int hour() {
-  unsigned long allSeconds = millis() / 1000;
-  int runHours = allSeconds / 3600;
-  int secsRemaining = allSeconds % 3600;
-  int runMinutes = secsRemaining / 60;
-  if (startMin + runMinutes > 60) runHours++;
-  return runHours + startHour;
-}
-
-byte minute() {
-  unsigned long allSeconds = millis() / 1000;
-  int runHours = allSeconds / 3600;
-  int secsRemaining = allSeconds % 3600;
-  int runMinutes = secsRemaining / 60;
-  return (startMin + runMinutes) % 60;
-}
-
-void printTime() {
-  Serial.print(hour());
-  Serial.print(":");
-  Serial.println(minute());
-}
 void clearBalloons() {
   for (int i = 1; i < numBalloons * 3 + 1; i++) {
     balloons[i] = 0;
   }
 }
 
-void toGallier(int wait) {
-  if (millis() - lastChecked > wait) {
-    currentBalloon++;
-    if (currentBalloon > numBalloons) currentBalloon = 0;
-    lastChecked = millis();
-  }
-  clearBalloons();
-  setBalloon(currentBalloon, 255, 0, 0);
-}
 
-void toTchoup(int wait) {
-  if (millis() - lastChecked > wait) {
-    currentBalloon--;
-    if (currentBalloon < 0) currentBalloon = numBalloons;
-    lastChecked = millis();
-  }
-  clearBalloons();
-  setBalloon(currentBalloon, 255, 0, 0);
-}
 
 void setBalloon(byte ind, byte r, byte g, byte b) {
-  if (ind >= 0 && ind < numBalloons * 3) {
+  if (ind >= 0 && ind < numBalloons) {
     balloons[ind * 3 + 1] = r;
     balloons[ind * 3 + 1 + 1] = g;
     balloons[ind * 3 + 2 + 1] = b;
@@ -199,10 +133,5 @@ byte WheelB(byte WheelPos) {
   }
   WheelPos -= 170;
   return 0;
-}
-
-void setStartTime(int h, int m) {
-  startHour = h;
-  startMin = m;
 }
 
