@@ -7,7 +7,7 @@
 // NEOPIXELS
 #include <Adafruit_NeoPixel.h>
 #define PIN 6
-#define NUM_PIXELS 200
+#define NUM_PIXELS 10
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // XBEE CONSTANTS
@@ -60,7 +60,7 @@ void getMessage() {
     //Read the message!
     else
     {
-      if (index < 4) // Make sure there is room
+      if (index < 30) // Make sure there is room
       {
         msg[index] = incomingByte; // Add char to array
         index++;
