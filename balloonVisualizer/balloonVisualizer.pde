@@ -1,4 +1,6 @@
-// jdeboi
+import processing.serial.*;
+import cc.arduino.*;
+import org.firmata.*;
 
 // light modes
 int RAINBOW = 0;
@@ -17,6 +19,14 @@ void setup() {
   size(600, 200);
   strip = new Strip();
   //initTwitter();
+
+  if (debugging) println(Arduino.list());
+  arduino = new Arduino(this, Arduino.list()[0], 57600);
+  arduino.pinMode(9, Arduino.OUTPUT);
+  arduino.pinMode(10, Arduino.OUTPUT);
+  arduino.pinMode(11, Arduino.OUTPUT);
+  String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
+  myPort = new Serial(this, portName, 9600);
 }
 
 void draw() {
@@ -55,4 +65,5 @@ void cycleModes() {
 
 void transmitBalloons() {
   // send the balloon states with RF module
+  strip.transmit();
 }

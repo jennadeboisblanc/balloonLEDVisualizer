@@ -30,6 +30,11 @@ class Strip {
     resetBalloons();
   }
 
+  void transmit() {
+
+    //myPort.write(val);
+  }
+
   void setRainbow(int wait) {
     colorMode(HSB, 255);
     if (millis() - lastChecked > wait) {
@@ -104,7 +109,7 @@ class Strip {
       setBalloon(i, 0, 0, 0);
     }
   }
-  
+
   void clear() {
     resetBalloons();
   }
@@ -128,13 +133,13 @@ class Strip {
       balloons[index*3+2] = int(blue(c));
     }
   }
-  
+
   void setPixelColor(int index, color c) {
     setBalloon(index, c);
   }
-  
+
   color Color(int r, int g, int b) {
-    return color(r, g,b);
+    return color(r, g, b);
   }
 
   void setAllBalloons(int r, int g, int b) {
