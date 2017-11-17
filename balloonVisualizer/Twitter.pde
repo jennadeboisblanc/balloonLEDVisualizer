@@ -23,7 +23,7 @@ void drawTwitter() {
   for (int i = 0; i < 10; i++) {
     if (twitterDuration[i] > 0) {
       twitterDuration[i]--;
-      setBalloon(i, twitterColors[i]);
+      strip.setBalloon(i, twitterColors[i]);
     }
   }
 }
