@@ -32,20 +32,28 @@ void loop() {
 
 ////////////////////////////////////////////////////////////////
 void setNeopixels() {
-  int r = msg[BALLOON_NUM*3];
-  int g = msg[BALLOON_NUM*3 + 1];
-  int b = msg[BALLOON_NUM*3 + 2];
+  int r = msg[BALLOON_NUM * 3];
+  int g = msg[BALLOON_NUM * 3 + 1];
+  int b = msg[BALLOON_NUM * 3 + 2];
   for (int i = 0; i < NUM_PIXELS; i++) {
-    strip.setPixel(i, strip.Color(r, g, b));
+    strip.setPixelColor(i, strip.Color(r, g, b));
   }
 }
 
-
 void getMessage() {
+  int index = 0;
+  while (Serial.available() > 0) {  //Read the incoming byte
+    incomingByte = Serial.read();
+    msg[index] = incomingByte;
+    index++;
+  }
+}
+
+void getMessage2() {
   while (Serial.available() > 0) {  //Read the incoming byte
     incomingByte = Serial.read();
     //Start the message when the '<' symbol is received
-    if (incomingByte == '<')
+    if (incomingByte == 19)
     {
       started = true;
       index = 0;
@@ -72,7 +80,7 @@ void getMessage() {
   if (started && ended)
   {
     int value = atoi(msg);
-    analogWrite(ledPin, value);
+    //analogWrite(ledPin, value);
     //Serial.println(value); //Only for debugging
     index = 0;
     msg[index] = '\0';
