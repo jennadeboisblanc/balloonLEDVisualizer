@@ -1,7 +1,7 @@
 // Luna Fete 2017
 // Xbee transmitter code to send color data to big balloons
 
-#define DEBUG true
+#define DEBUG false
 #define RAINBOW 1
 #define TO_GALLIER 2
 #define TO_TCHOUP 3
@@ -10,7 +10,8 @@
 unsigned long startTimeSeconds;
 int mode = 0;
 int numBalloons = 10;
-byte balloons[30] = {
+byte balloons[31] = {
+  47,
   0, 0, 0,
   0, 0, 0,
   0, 0, 0,
@@ -33,15 +34,39 @@ void setup()  {
 }
 
 void loop() {
-  if (isGallierTime()) toGallier(100);
-  else if (isTchoupTime()) toTchoup(100);
-  else rainbowCycle(10);
+  //  if (isGallierTime()) toGallier(100);
+  //  else if (isTchoupTime()) toTchoup(100);
+  //  else rainbowCycle(10);
+  //rainbowCycle(10);
+  setAllBalloons(0, 255, 0);
+  long t = millis();
+  while (millis() - t < 500) sendBalloons();
+
+
+  setAllBalloons(0, 0, 255);
+  t = millis();
+  while (millis() - t < 500) sendBalloons();
+
+
+  setAllBalloons(255, 0, 0);
+  t = millis();
+  while (millis() - t < 500) sendBalloons();
+
+  setAllBalloons(0, 255, 255);
+  t = millis();
+  while (millis() - t < 500) sendBalloons();
+
   //printTime();
-  sendBalloons();
+}
+
+void setAllBalloons(int r, int g, int b) {
+  for (int i = 0; i < 10; i++) {
+    setBalloon(i, r, g, b);
+  }
 }
 
 void sendBalloons() {
-  // TODO
+  Serial.write(balloons, sizeof(balloons));
 }
 
 
@@ -84,7 +109,7 @@ byte minute() {
   int runHours = allSeconds / 3600;
   int secsRemaining = allSeconds % 3600;
   int runMinutes = secsRemaining / 60;
-  return (startMin+ runMinutes)%60;
+  return (startMin + runMinutes) % 60;
 }
 
 void printTime() {
@@ -93,7 +118,7 @@ void printTime() {
   Serial.println(minute());
 }
 void clearBalloons() {
-  for (int i = 0; i < numBalloons * 3; i++) {
+  for (int i = 1; i < numBalloons * 3 + 1; i++) {
     balloons[i] = 0;
   }
 }
@@ -106,7 +131,6 @@ void toGallier(int wait) {
   }
   clearBalloons();
   setBalloon(currentBalloon, 255, 0, 0);
-  showBalloons();
 }
 
 void toTchoup(int wait) {
@@ -117,14 +141,13 @@ void toTchoup(int wait) {
   }
   clearBalloons();
   setBalloon(currentBalloon, 255, 0, 0);
-  showBalloons();
 }
 
 void setBalloon(byte ind, byte r, byte g, byte b) {
   if (ind >= 0 && ind < numBalloons * 3) {
-    balloons[ind * 3] = r;
-    balloons[ind * 3 + 1] = g;
-    balloons[ind * 3 + 2] = b;
+    balloons[ind * 3 + 1] = r;
+    balloons[ind * 3 + 1 + 1] = g;
+    balloons[ind * 3 + 2 + 1] = b;
   }
 }
 
@@ -142,7 +165,6 @@ void rainbowCycle(uint8_t wait) {
     byte b = WheelB(((i * 256 / numBalloons) + rainbowIndex) & 255);
     setBalloon(i, r, g, b);
   }
-  showBalloons();
 }
 
 // Adafruit Neopixel Strandtest
