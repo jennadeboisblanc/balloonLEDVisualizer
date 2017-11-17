@@ -4,9 +4,11 @@
 
 #define BALLOON_NUM 0
 
+#define DEBUG false
+
 // NEOPIXELS
 #include <Adafruit_NeoPixel.h>
-#define PIN 6
+#define PIN 8
 #define NUM_PIXELS 10
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -15,7 +17,7 @@ bool started = false;   // True: Message is started
 bool ended   = false;    // True: Message is finished
 char incomingByte ;     // Variable to store the incoming byte
 char msg[30];           // Incoming message with RGB values for each balloon
-byte index;             // Index of array
+int index;             // Index of array
 
 ////////////////////////////////////////////////////////////////
 void setup() {
@@ -41,51 +43,36 @@ void setNeopixels() {
 }
 
 void getMessage() {
-  int index = 0;
   while (Serial.available() > 0) {  //Read the incoming byte
     incomingByte = Serial.read();
-    msg[index] = incomingByte;
-    index++;
-  }
-}
-
-void getMessage2() {
-  while (Serial.available() > 0) {  //Read the incoming byte
-    incomingByte = Serial.read();
-    //Start the message when the '<' symbol is received
-    if (incomingByte == 19)
-    {
-      started = true;
-      index = 0;
-      msg[index] = '\0'; // Throw away any incomplete packet
+    // check for first byte
+    if (DEBUG) {
+      Serial.print(index);
+      Serial.print(" ");
+      int b = incomingByte & 0xFF;
+      Serial.println(b);
     }
-    //End the message when the '>' symbol is received
-    else if (incomingByte == '>')
-    {
-      ended = true;
-      break; // Done reading - exit from while loop!
+    if (!started) {
+      if (incomingByte == 47) {
+        index = 0;
+        started = true;
+      }
     }
-    //Read the message!
-    else
-    {
-      if (index < 30) // Make sure there is room
-      {
-        msg[index] = incomingByte; // Add char to array
+    else {
+      // read the byte
+      if (index < 30) {
+        msg[index] = incomingByte; // Add byte to array
         index++;
-        msg[index] = '\0'; // Add NULL to end
+      }
+      // we're done
+      else {
+        index = 0;
+        msg[index] = 0;
+        started = false;
+        break; // Done reading - exit from while loop!
       }
     }
   }
-
-  if (started && ended)
-  {
-    int value = atoi(msg);
-    //analogWrite(ledPin, value);
-    //Serial.println(value); //Only for debugging
-    index = 0;
-    msg[index] = '\0';
-    started = false;
-    ended = false;
-  }
 }
+
 
