@@ -1,4 +1,4 @@
-#define BALLOON_NUM 0
+#define BALLOON_NUM 1
 
 #include <painlessMesh.h>
 #define   MESH_SSID       "whateverYouLike"
@@ -59,20 +59,22 @@ void loop() {
 
 
 void sendMessage() {
-  rainbowCycle(1);
-  //  int rgb_msg = random(0, 255);
-  //  String msg = String(rgb_msg);
+  rainbowCycle(10);
+  //setAllBalloons(int(random(255)), int(random(255)), int(random(255)));
+  //setAllBalloons(0, 0, 2);
   String msg = "";
 
   for (int i = 0; i < 30; i++) {
     String val = String(balloons[i], HEX);
+    if (val.length() < 2) msg += '0';
     msg += val;
   }
   String sending = msg.c_str();
-  Serial.printf("IND: %i, R: %i, G: %i, B: %i \n", rainbowIndex, getRed(sending), getGreen(sending), getBlue(sending));
-  //Serial.printf("Sending message: %s\n", msg.c_str());
+  //Serial.printf(getBlue(sending) + "");
+  //Serial.printf("IND: %i, R: %i, G: %i, B: %i \n", rainbowIndex, getRed(sending), getGreen(sending), getBlue(sending));
+  Serial.printf("Sending message: %s\n", msg.c_str());
   bool error = mesh.sendBroadcast(msg);
-  taskSendMessage.setInterval(500);  // between 1 and 5 seconds
+  taskSendMessage.setInterval(50);  // between 1 and 5 seconds
 }
 
 
@@ -133,11 +135,7 @@ void rainbowCycle(int amt) {
   }
 }
 
-void setAllBalloons(int r, int g, int b) {
-  for (int i = 0; i < numBalloons; i++) {
-    setBalloon(i, r, g, b);
-  }
-}
+
 
 //void rainbowCycle(uint8_t wait) {
 //  if (millis() - lastChecked > wait) {
