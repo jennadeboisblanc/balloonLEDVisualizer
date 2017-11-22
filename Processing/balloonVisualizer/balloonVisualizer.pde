@@ -1,6 +1,10 @@
 import processing.serial.*;
 import cc.arduino.*;
 import org.firmata.*;
+Arduino arduino;
+Serial myPort;
+
+boolean debugging = false;
 
 // light modes
 int RAINBOW = 0;
@@ -20,13 +24,10 @@ void setup() {
   strip = new Strip();
   //initTwitter();
 
-  if (debugging) println(Arduino.list());
-  arduino = new Arduino(this, Arduino.list()[0], 57600);
-  arduino.pinMode(9, Arduino.OUTPUT);
-  arduino.pinMode(10, Arduino.OUTPUT);
-  arduino.pinMode(11, Arduino.OUTPUT);
-  String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
-  myPort = new Serial(this, portName, 9600);
+  println(Arduino.list());
+  arduino = new Arduino(this, Arduino.list()[5], 115200);
+  String portName = Serial.list()[5]; //change the 0 to a 1 or 2 etc. to match your port
+  myPort = new Serial(this, portName, 115200);
 }
 
 void draw() {

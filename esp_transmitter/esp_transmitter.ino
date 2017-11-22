@@ -39,8 +39,15 @@ int rainbowIndex = 0;
 
 void setup() {
   Serial.begin(115200);
-  //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
-  //mesh.setDebugMsgTypes(ERROR | DEBUG | CONNECTION | COMMUNICATION);  // set before init() so that you can see startup messages
+  initMesh();
+}
+
+void loop() {
+  mesh.update();
+}
+
+
+void initMesh() {
   mesh.setDebugMsgTypes(ERROR | DEBUG | CONNECTION);  // set before init() so that you can see startup messages
   mesh.init(MESH_SSID, MESH_PASSWORD, MESH_PORT);
   mesh.onReceive(&receivedCallback);
@@ -49,32 +56,22 @@ void setup() {
   mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
   mesh.onNodeDelayReceived(&delayReceivedCallback);
   mesh.scheduler.addTask( taskSendMessage );
-  taskSendMessage.enable() ;
-
-
+  taskSendMessage.enable();
 }
-void loop() {
-  mesh.update();
-}
-
 
 void sendMessage() {
-  rainbowCycle(10);
-  //setAllBalloons(int(random(255)), int(random(255)), int(random(255)));
-  //setAllBalloons(0, 0, 2);
+  rainbowCycle(5);
   String msg = "";
-
   for (int i = 0; i < 30; i++) {
     String val = String(balloons[i], HEX);
     if (val.length() < 2) msg += '0';
     msg += val;
   }
   String sending = msg.c_str();
-  //Serial.printf(getBlue(sending) + "");
   //Serial.printf("IND: %i, R: %i, G: %i, B: %i \n", rainbowIndex, getRed(sending), getGreen(sending), getBlue(sending));
-  Serial.printf("Sending message: %s\n", msg.c_str());
+  //Serial.printf("Sending message: %s\n", msg.c_str());
   bool error = mesh.sendBroadcast(msg);
-  taskSendMessage.setInterval(50);  // between 1 and 5 seconds
+  taskSendMessage.setInterval(250); 
 }
 
 

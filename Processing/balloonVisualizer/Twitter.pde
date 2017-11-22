@@ -7,7 +7,87 @@ StatusListener listener;
 String hashtag = "#lunafete";
 color twitterColors[];
 int twitterDuration[];
+
 String saveText = "";
+String saveText1 = "";
+String saveText2 = "";
+int val = 0;
+float red = 0;
+float green = 0;
+float blue = 0;
+
+void griffenTwitter() {
+  println(saveText);
+  if (saveText.indexOf("10") != -1) {
+    val = 10;
+  }
+  for (int i = 0; i < 10; i++) {
+    if (saveText.indexOf(str(i)) != -1) {
+      val = i;
+    }
+  }
+  //println(saveText2.indexOf("blue"));
+  //println(saveText2);
+  saveText = saveText.toLowerCase();
+  //myPort.write(int(saveText1));
+  //myPort.write(str(red));
+  //myPort.write(str(green));
+  //myPort.write(str(blue));
+  if (saveText.indexOf("blue") != -1) {
+    myPort.write(val);
+    myPort.write(0);
+    myPort.write(0);
+    myPort.write(255);
+  }
+  if (saveText.indexOf("green") != -1) {
+    myPort.write(val);
+    myPort.write(0);
+    myPort.write(255);
+    myPort.write(0);
+  }
+  if (saveText.indexOf("red") != -1) {
+    myPort.write(val);
+    myPort.write(255);
+    myPort.write(0);
+    myPort.write(0);
+  }
+  if (saveText.indexOf("yellow") != -1) {
+    myPort.write(val);
+    myPort.write(255);
+    myPort.write(255);
+    myPort.write(0);
+  }
+  if (saveText.indexOf("orange") != -1) {
+    myPort.write(val);
+    myPort.write(255);
+    myPort.write(100);
+    myPort.write(0);
+  }
+  if (saveText.indexOf("purple") != -1) {
+    myPort.write(val);
+    myPort.write(255);
+    myPort.write(0);
+    myPort.write(255);
+  }
+  if (saveText.indexOf("white") != -1) {
+    myPort.write(val);
+    myPort.write(255);
+    myPort.write(255);
+    myPort.write(255);
+  }
+  if (saveText.indexOf("black") != -1) {
+    myPort.write(val);
+    myPort.write(0);
+    myPort.write(0);
+    myPort.write(0);
+  }
+  if (saveText.indexOf("off") != -1) {
+    myPort.write(val);
+    myPort.write(0);
+    myPort.write(0);
+    myPort.write(0);
+  }
+}
 
 void initTwitter() {
   twitterColors = new color[10];

@@ -1,7 +1,7 @@
 class Strip {
 
 
-  int [] balloons; // balloons is an array of 30 RGB values
+  byte [] balloons; // balloons is an array of 30 RGB values
 
   int currentBalloon = 0;
   long lastChecked;
@@ -16,7 +16,7 @@ class Strip {
 
 
   Strip() {
-    balloons = new int[30];
+    balloons = new byte[30];
 
     redStates = new float[10];
     greenStates = new float[10];
@@ -32,7 +32,9 @@ class Strip {
 
   void transmit() {
 
-    //myPort.write(val);
+    for (int i = 0; i < balloons.length; i++) {
+      myPort.write(balloons);
+    }
   }
 
   void setRainbow(int wait) {
@@ -116,9 +118,9 @@ class Strip {
 
   void setBalloon(int index, int r, int g, int b) {
     if (index >= 0 && index < 10) {
-      balloons[index*3] = r;
-      balloons[index*3+1] = g; 
-      balloons[index*3+2] = b;
+      balloons[index*3] = byte(r);
+      balloons[index*3+1] = byte(g); 
+      balloons[index*3+2] = byte(b);
     }
   }
 
@@ -128,9 +130,9 @@ class Strip {
 
   void setBalloon(int index, color c) {
     if (index >= 0 && index < 10) {
-      balloons[index*3] = int(red(c));
-      balloons[index*3+1] = int(green(c)); 
-      balloons[index*3+2] = int(blue(c));
+      balloons[index*3] = byte(red(c));
+      balloons[index*3+1] = byte(green(c)); 
+      balloons[index*3+2] = byte(blue(c));
     }
   }
 
