@@ -52,14 +52,18 @@ void draw() {
   //strip.setNewmanGradientGF(100); 
   //strip.setFadeGF(); // kind of the same as the one below
   //strip.setGoTimeGF(50);
-  
-  // WILL AND CONNOR
-  strip.setAccidentalWC(500);
-  
-  
   //strip.setRandomWhite();  
   //strip.setRandomColour();
   
+  // WILL AND CONNOR
+  //strip.setAccidentalWC(500);
+  
+  // JAMES AND JAMES
+  //strip.halfRollOutJJ(100);
+  strip.rainbowBlinkJJ(200);
+  
+  
+  //strip.colorBlinkJJ(200);
   
   //strip.setWave(0, 255, 255, 100);
   //strip.setRainbow(10);

@@ -9,6 +9,8 @@ class Strip {
   int brightnessDirection = 5;
   int rainbowIndex = 0;
 
+  int direction = 1;
+
   float redStates[];
   float blueStates[];
   float greenStates[];
@@ -20,7 +22,7 @@ class Strip {
   int goalBlue[] = {255, 0, 255, 0, 255, 255, 0, 255, 0, 0};
   int goalColour[] = {255, 0, 255, 255, 0, 0, 255, 0, 255, 255};
   int colour[] = {110, 110, 110, 110, 110, 110, 110, 110, 110, 110};
-  boolean rainbowTime = false;
+  boolean rainbowOn = false;
 
   Strip() {
     balloons = new byte[30];
@@ -281,13 +283,13 @@ class Strip {
   void setAccidentalWC(int rate) {
     if (millis() - lastChecked > rate) {
       lastChecked = millis();
-      rainbowTime = !rainbowTime;
+      rainbowOn = !rainbowOn;
 
-      if (!rainbowTime) pulseIndex += 10;
+      if (!rainbowOn) pulseIndex += 10;
       if (pulseIndex > 255) pulseIndex = 0;
     }
 
-    if (rainbowTime) {
+    if (rainbowOn) {
       ledIndex+=10;
       if (ledIndex > 255) ledIndex = 0;
       for (int i = 0; i < 10; i++) {
@@ -300,9 +302,200 @@ class Strip {
     }
   }
 
+  // heartbeat
+  void setHeartbeatWC(int rate, color col) {
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      pulseIndex++;
+      if (pulseIndex > 5) pulseIndex = 0;
+      // on long, off, on short, off
+      // on, on, off, on, off
+    }
+    if (pulseIndex != 2 && pulseIndex != 4) setAllBalloons(col);
+    else setAllBalloons(0, 0, 0);
+  }
 
+  // bounce
+  void setBounceWC(int rate) {
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      pulseIndex += direction;
+      if (pulseIndex > 8) {
+        pulseIndex = 9;
+        direction = -1;
+      } else if (pulseIndex < 0) {
+        pulseIndex = 0;
+        direction = 1;
+        ledIndex += 30;
+        if (ledIndex > 255) ledIndex = 0;
+      }
+    }
+    resetBalloons();
+    setBalloon(pulseIndex, Wheel(ledIndex));
+  }
+  ///////////////////
+  void rainbowBlinkJJ(int rate) { //old light function
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      pulseIndex++;
+      if (pulseIndex > 6) pulseIndex = 0;
+      rainbowOn = !rainbowOn;
+    }
+    int split = 2;
+    if (rainbowOn) {
+      clear();
+    } else {
+      for (int j = 0; j <  (10/split); j++) {
+        redStates[0] =0;
+        greenStates[0] =0;
+        blueStates[0] = 0;
+        if (pulseIndex == 0)redStates[0] =255;
+        else if (pulseIndex == 1)greenStates[0] =255;
+        else if (pulseIndex == 2)blueStates[0] = 255;
+        else if (pulseIndex == 3) {
+          redStates[0] =255;
+          blueStates[0] = 255;
+        } else if (pulseIndex == 4) {
+          redStates[0] =255;
+          greenStates[0] =255;
+        } else if (pulseIndex == 5) {
+          blueStates[0] = 255;
+          greenStates[0] =255;
+        } else if (pulseIndex == 6) {
+          redStates[0] =255;
+        }
+        for (int i = 0; i < split; i++) {
+          setBalloon(j + (i *  10/split), redStates[0], greenStates[0], blueStates[0]);
+        }
+      }
+    }
+  }
+
+  void backForthJJ(int rate) { //old light function
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      rainbowOn = !rainbowOn;
+      clear();
+    }
+
+    for (int i = 0; i < 10; i++) {
+      if (i % 2 == 0) {
+        greenStates[0] =0;
+        blueStates[0] = 0;
+        redStates[0] =0;
+        if (rainbowOn) {
+          redStates[0] =255;
+        } else blueStates[0] = 255;
+      }
+      if ((i-1) % 2 == 0) {
+        redStates[0] =0;
+        greenStates[0] =0;
+        blueStates[0] = 0;
+        if (rainbowOn) {
+          blueStates[0] = 255;
+        } else redStates[0] =255;
+      }
+      setBalloon(i, redStates[0], greenStates[0], blueStates[0]);
+    }
+  }
+
+  void colorBlinkJJ(int rate) {  //james N light function
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      pulseIndex = int(random(8));
+      rainbowOn = !rainbowOn;
+    }
+    if (rainbowOn) clear();
+    else {
+      redStates[0] = 0;
+      greenStates[0] = 0;
+      blueStates[0] = 0;
+      if (pulseIndex == 0) redStates[0] = 255;
+      else if (pulseIndex == 1) {
+        redStates[0] = 255;
+        greenStates[0] =72;
+      } else if (pulseIndex == 2) {
+        redStates[0] = 255;
+        greenStates[0] =233;
+      } else if (pulseIndex == 3) {
+        greenStates[0] =255;
+      } else if (pulseIndex == 4) {
+        blueStates[0] = 255;
+      } else if (pulseIndex == 5) {
+        redStates[0] =167;
+        greenStates[0] =66;
+        blueStates[0] = 244;
+      } else if (pulseIndex == 6) {
+        redStates[0] =178;
+        greenStates[0] =0;
+        blueStates[0] = 255;
+      } else if (pulseIndex == 7) {
+        redStates[0] =52;
+        greenStates[0] =38;
+        blueStates[0] = 232;
+      }
+      setAllBalloons(int(redStates[0]), int(greenStates[0]), int(blueStates[0]));
+    }
+  }
+
+  int start_pin;
+
+
+
+  void halfRollOutJJ(int rate) { //old light function
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      pulseIndex++;
+      if (pulseIndex > 6) pulseIndex = 1;
+      rainbowOn = !rainbowOn;
+    }
+    if (start_pin < 0) {
+      start_pin = 10;
+      clear();
+      rainbowOn = true;
+      lastChecked = millis();
+    }
+    else if (start_pin > 10) {
+      start_pin = -1;
+      clear();
+      rainbowOn = true;
+      lastChecked = millis();
+    }
+
+    if (!rainbowOn) {
+      start_pin --;
+
+      redStates[0] =0;
+      greenStates[0] =0;
+      blueStates[0] = 0;
+      if (pulseIndex == 0)redStates[0] =255;
+      if (pulseIndex == 1)greenStates[0] =255;
+      if (pulseIndex == 2)blueStates[0] = 255;
+      if (pulseIndex == 3) {
+        redStates[0] =255;
+        blueStates[0] = 255;
+      }
+      if (pulseIndex == 4) {
+        redStates[0] =255;
+        greenStates[0] =255;
+      }
+      if (pulseIndex == 5) {
+        blueStates[0] = 255;
+        greenStates[0] =255;
+      }
+      if (pulseIndex == 6) {
+
+        redStates[0] =255;
+      }
+      setBalloon(start_pin, redStates[0], greenStates[0], blueStates[0]);
+    }
+  }
 
   ////////-------------------------
+  void clearBalloons() {
+    resetBalloons();
+  }
+
   void resetBalloons() {
     for (int i = 0; i < 10; i++) {
       setBalloon(i, 0, 0, 0);
