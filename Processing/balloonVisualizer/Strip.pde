@@ -13,7 +13,14 @@ class Strip {
   float blueStates[];
   float greenStates[];
   float fadeRate = 0.98;
-
+  int fadeRandom = 0;
+  int fadeColor[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int goalRed[] = {255, 0, 255, 255, 0, 0, 255, 255, 255, 0};
+  int goalGreen[] = {255, 0, 0, 255, 255, 0, 255, 255, 0, 0};
+  int goalBlue[] = {255, 0, 255, 0, 255, 255, 0, 255, 0, 0};
+  int goalColour[] = {255, 0, 255, 255, 0, 0, 255, 0, 255, 255};
+  int colour[] = {110, 110, 110, 110, 110, 110, 110, 110, 110, 110};
+  boolean rainbowTime = false;
 
   Strip() {
     balloons = new byte[30];
@@ -106,6 +113,196 @@ class Strip {
     setBalloon(currentBalloon, r, g, b);
   }
 
+  // -------------------
+  // sam and david
+  void setNewmanColorsDS(int rate) {
+    pulseIndex += rate;
+    if (pulseIndex > 255) pulseIndex = 0;
+    for (int j = 0; j < 10; j++) {
+      if (j % 2 == 0) {
+        // this is even
+        setBalloon(j, strip.Color(0, pulseIndex, 0));
+      } else {
+        setBalloon(j, strip.Color(pulseIndex, pulseIndex, pulseIndex));
+      }
+    }
+  }
+
+  void setPulsing(int rate) {
+    pulseIndex+=rate;
+    if (pulseIndex > 255) pulseIndex = 0;
+    setAllBalloons(0, 0, pulseIndex);
+  }
+
+  void setDougDS(int rate) {
+    clear();
+    setBalloon(0, Wheel(byte(pulseIndex)));
+    setBalloon(1, Wheel(byte((pulseIndex - 25)%255)));
+    setBalloon(2, Wheel(byte(((pulseIndex - 50))%255)));
+    setBalloon(3, Wheel(byte(((pulseIndex - 75))%255)));
+    setBalloon(4, Wheel(byte(((pulseIndex - 100))%255)));
+    setBalloon(5, Wheel(byte(((pulseIndex - 125))%255)));
+    setBalloon(6, Wheel(byte(((pulseIndex - 150))%255)));
+    setBalloon(7, Wheel(byte(((pulseIndex - 175))%255)));
+    setBalloon(8, Wheel(byte(((pulseIndex - 200))%255)));
+    setBalloon(9, Wheel(byte(((pulseIndex - 225))%255)));
+    //strip.setAllBalloons(255, 0, 0);
+    //strip.setBalloon(1, strip.Color(255, 0, 0));
+    strip.show();
+    pulseIndex += rate;
+    if (pulseIndex > 255) pulseIndex = 0;
+  }
+
+  //////////////////////
+  void setRainbowLine(int cycleRate) {
+    if (millis() - lastChecked > cycleRate) {
+      lastChecked = millis();
+      pulseIndex++;
+      if (pulseIndex % 7 == 0) ledIndex++;
+      colorIndex = pulseIndex%6;
+    }
+    int [][] colorsDown = {
+      {255, 0, 0}, 
+      {255, 60, 0}, 
+      {155, 155, 0}, 
+      {0, 255, 0}, 
+      {0, 0, 255}, 
+      {155, 0, 155}
+    };
+    setAllBalloons(Wheel(byte((pulseIndex)%255)));
+    setBalloon(ledIndex%10, colorsDown[colorIndex][0], colorsDown[colorIndex][1], colorsDown[colorIndex][2]);
+  }
+
+  void setNewmanGradientGF(int rate) {
+    int pixelColors[] = { 0, 0, 50, 100, 200, 255, 200, 100, 50, 0};
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      pulseIndex++;
+      if (pulseIndex > 18) pulseIndex = 0;
+    }
+    if (pulseIndex < 11) {
+      for (int i = 0; i < 10; i++) {
+        setBalloon(i, strip.Color(pixelColors[(i + pulseIndex) % 10], 255, pixelColors[(i + pulseIndex) % 10]));
+      }
+    } else if (pulseIndex < 20) {
+      int j = 20 - pulseIndex;
+      for (int i = 0; i < 10; i++) {
+        setBalloon(i, strip.Color(pixelColors[(i + j) % 10], 255, pixelColors[(i + j) % 10]));
+      }
+    }
+  }
+
+  void setFadeGF() {
+    pulseIndex++;
+    if (pulseIndex%100 == 0) {
+      fadeRandom = int(random(0, 10));
+      fadeColor[fadeRandom] = int(random(0, 255));
+    }
+    for (int i = 0; i<10; i++) {
+      fadeColor[i] = fadeColor[i]-1;
+      setBalloon(i, Wheel(byte(fadeColor[i])));
+    }
+  }
+
+  void setRandomColour() {
+    for (int i = 0; i<10; i++) {
+      if (colour[i]<goalColour[i]) {
+        colour[i]++;
+      } else if (colour[i]>goalColour[i]) {
+        colour[i]--;
+      } else if (colour[i]==goalColour[i]) {
+        goalColour[i] = int(random(0, 255));
+      }
+      setBalloon(i, Wheel(byte(colour[i])));
+      strip.show();
+    }
+  }
+
+  void setRandomWhite() {
+    for (int i = 0; i<10; i++) {
+      if (redStates[i]<goalRed[i]) {
+        redStates[i]++;
+      } else if (redStates[i]>goalRed[i]) {
+        redStates[i]--;
+      } else if (redStates[i]==goalRed[i]) {
+        goalRed[i] = int(random(0, 255));
+      }
+      if (greenStates[i]<goalGreen[i]) {
+        greenStates[i]++;
+      } else if (greenStates[i]>goalGreen[i]) {
+        greenStates[i]--;
+      } else if (greenStates[i]==goalGreen[i]) {
+        goalGreen[i] = int(random(0, 255));
+      }
+      if (blueStates[i]<goalBlue[i]) {
+        blueStates[i]++;
+      } else if (blueStates[i]>goalBlue[i]) {
+        blueStates[i]--;
+      } else if (blueStates[i]==goalBlue[i]) {
+        goalBlue[i] = int(random(0, 255));
+      }
+      setBalloon(i, strip.Color(int(redStates[i]), int(greenStates[i]), int(blueStates[i])));
+      strip.show();
+    }
+  }
+
+  void setGoTimeGF(int cycleRate) {
+    if (millis() - lastChecked > cycleRate) {
+      lastChecked = millis();
+      pulseIndex++;
+      if (pulseIndex > 10) {
+        ledIndex++;
+        pulseIndex = 0;
+      }
+    }
+
+    clear();
+    if (ledIndex%4 == 0) setBalloon(pulseIndex, 255, 0, 0);
+    else if (ledIndex%4 == 1) setBalloon(pulseIndex, 0, 255, 0);
+    else if (ledIndex%4 == 2) setBalloon(pulseIndex, 0, 0, 255);
+    else setBalloon(pulseIndex, int(random(255)), int(random(255)), int(random(255)));
+
+    // delayTime = delayTime*.90;
+
+    //for (int y=0; y<7; y++) {
+    //  for (int x=0; x<25; x++) {
+    //    for (int i=0; i<10; i++) {
+    //      clear();
+    //      setBalloon(i, strip.Color(150-(25*y), 10*x, y*40));
+    //      strip.show();
+    //      delay(50);
+    //    }
+    //  }
+    //}
+  }
+
+
+  // Will and Connor 
+  void setAccidentalWC(int rate) {
+    if (millis() - lastChecked > rate) {
+      lastChecked = millis();
+      rainbowTime = !rainbowTime;
+
+      if (!rainbowTime) pulseIndex += 10;
+      if (pulseIndex > 255) pulseIndex = 0;
+    }
+
+    if (rainbowTime) {
+      ledIndex+=10;
+      if (ledIndex > 255) ledIndex = 0;
+      for (int i = 0; i < 10; i++) {
+        setBalloon (i, Wheel(ledIndex));
+      }
+    } else {
+      for (int i = 0; i < 10; i++) {
+        setBalloon (i, Wheel(pulseIndex));
+      }
+    }
+  }
+
+
+
+  ////////-------------------------
   void resetBalloons() {
     for (int i = 0; i < 10; i++) {
       setBalloon(i, 0, 0, 0);
@@ -130,9 +327,9 @@ class Strip {
 
   void setBalloon(int index, color c) {
     if (index >= 0 && index < 10) {
-      balloons[index*3] = byte(red(c));
-      balloons[index*3+1] = byte(green(c)); 
-      balloons[index*3+2] = byte(blue(c));
+      balloons[index*3] = byte(constrain(red(c), 0, 255));
+      balloons[index*3+1] = byte(constrain(green(c), 0, 255)); 
+      balloons[index*3+2] = byte(constrain(blue(c), 0, 255));
     }
   }
 
@@ -160,7 +357,10 @@ class Strip {
     stroke(255);
     strokeWeight(2);
     for (int i = 0; i < 10; i++) {
-      fill(balloons[i*3], balloons[i*3+1], balloons[i*3 +2]);
+      int c0 = balloons[i*3] & 0xFF;
+      int c1 = balloons[i*3 + 1] & 0xFF;
+      int c2 = balloons[i*3 + 2] & 0xFF;
+      fill(c0, c1, c2);
       ellipse(i * 60 + 30, 50, 50, 50);
       line(i * 60 + 30, 75, i * 60 + 30, 150);
     }

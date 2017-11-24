@@ -1,3 +1,5 @@
+// misisng a num in the goalblue
+
 
 //int fadeRandom = 0;
 //int fadeColor[] = {0,0,0,0,0,0,0,0,0,0};
