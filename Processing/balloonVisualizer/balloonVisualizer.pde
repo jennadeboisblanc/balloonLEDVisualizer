@@ -35,8 +35,8 @@ void setup() {
 
 void draw() {
   background(0);
-  //cycleModes();
-  //playMode();
+  cycleModes();
+  playMode();
 
   //drawTwitter();
   //transmitBalloons();
@@ -60,14 +60,14 @@ void draw() {
   
   // JAMES AND JAMES
   //strip.halfRollOutJJ(100);
-  strip.rainbowBlinkJJ(200);
+  //strip.rainbowBlinkJJ(200);
   
   
   //strip.colorBlinkJJ(200);
   
   //strip.setWave(0, 255, 255, 100);
   //strip.setRainbow(10);
-  strip.show();
+  //strip.show();
 }
 
 

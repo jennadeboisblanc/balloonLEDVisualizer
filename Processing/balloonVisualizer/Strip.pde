@@ -251,10 +251,18 @@ class Strip {
   void setGoTimeGF(int cycleRate) {
     if (millis() - lastChecked > cycleRate) {
       lastChecked = millis();
-      pulseIndex++;
-      if (pulseIndex > 10) {
-        ledIndex++;
-        pulseIndex = 0;
+      if (true) {
+        pulseIndex++;
+        if (pulseIndex > 10) {
+          ledIndex++;
+          pulseIndex = 0;
+        }
+      } else {
+        pulseIndex--;
+        if (pulseIndex < 0) {
+          ledIndex++;
+          pulseIndex = 9;
+        }
       }
     }
 
@@ -454,8 +462,7 @@ class Strip {
       clear();
       rainbowOn = true;
       lastChecked = millis();
-    }
-    else if (start_pin > 10) {
+    } else if (start_pin > 10) {
       start_pin = -1;
       clear();
       rainbowOn = true;
