@@ -12,9 +12,9 @@ void sendMessage() ; // Prototype
 Task taskSendMessage( TASK_SECOND * 1, TASK_FOREVER, &sendMessage ); // start with a one second interval
 bool onFlag = false;
 
-//#include <IRremoteESP8266.h>
-//#include <IRsend.h>
-//IRsend irsend(2);  // An IR LED is controlled by GPIO pin 4 (D2)
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+IRsend irsend(2);  // An IR LED is controlled by GPIO pin 4 (D2)
 uint16_t irColor[67];
 uint16_t redData[67] = {9054, 4540,  546, 592,  542, 594,  540,
       594,  542, 594,  542, 594,  542, 594,
@@ -91,16 +91,17 @@ void setup() {
   randomSeed(analogRead(A0));
 
   Serial.println("a rawData capture from IRrecvDumpV2 of red");
-  //irsend.sendRaw(irColor, 67, 38);  // Send a raw data capture at 38kHz.
+  irsend.sendRaw(irColor, 67, 38);  // Send a raw data capture at 38kHz.
   delay(500);
 }
 void loop() {
   mesh.update();
   setNeopixels();
+  setIRArray();
   ledstrip.show(pixels);
 
   Serial.println("a rawData capture from IRrecvDumpV2");
-  //irsend.sendRaw(irColor, 67, 38);  // Send a raw data capture at 38kHz.
+  irsend.sendRaw(irColor, 67, 38);  // Send a raw data capture at 38kHz.
   delay(500);
 }
 
