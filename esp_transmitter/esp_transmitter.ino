@@ -5,6 +5,7 @@
 */
 
 // MODES --------------------------- //
+#define NUM_MODES 15
 enum  lightmode {
   // David and Sam
   PULSE_DS, NEWMAN_DS, DOUG_DS,
@@ -22,6 +23,10 @@ enum  lightmode {
   RAINBOW, RAINBOW_CYCLE, FADE, LAST
 };
 lightmode  ActiveMode;
+
+
+
+
 
 enum  gomode {
   GOTIME_GF, LAST_GO
@@ -99,7 +104,7 @@ void loop() {
 
 void setLightMode() {
   if (goTime) {
-    switch (GoTime) {
+    switch (GoMode) {
       case GOTIME_GF:
         setGoTimeGF(50);
         break;
@@ -180,21 +185,19 @@ void updateLightMode() {
   }
   else {
     goTime = false;
-    cycleLightMode(8000);
+    cycleLightMode(4000);
   }
 }
 
 void cycleGoMode(int rate) {
   if (millis() - modeSelectTime > rate) {
-    GoMode++;
-    if (GoMode >= LAST_GO) GoMode = 0;
+    GoMode = gomode((GoMode+1) % (LAST_GO));
   }
 }
 
 void cycleLightMode(int rate) {
   if (millis() - modeSelectTime > rate) {
-    ActiveMode++;
-    if (ActiveMode >= LAST) ActiveMode = 0;
+    ActiveMode = lightmode((ActiveMode+1) % (LAST));
   }
 }
 
