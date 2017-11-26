@@ -89,7 +89,7 @@ byte balloons[30] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 void setup() {
   Serial.begin(115200);
   initMesh();
-
+  setFade(Wheel(10), Wheel(40), 50, 10, FORWARD);
 }
 
 void loop() {
