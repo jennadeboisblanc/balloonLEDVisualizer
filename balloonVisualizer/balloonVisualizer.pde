@@ -1,17 +1,28 @@
 // light modes
 //EDITS BY LIBBY
-int RAINBOW = 0;
-int PULSE = 1;
+int RAINBOW = 1;
 int WAVE = 2;
 int BLINK = 3;
 int RAINBOWBLINK=4;
+int RIGHTWAVE=5;
+int LEFTWAVE=6;
+int RIGHTFILL=7;
+int LEFTFILL=8;
+int RAINBOWWAVE=9;
+int MOVINGRAINBOW=10;
 boolean on = true; 
-int mode = PULSE;
+int mode = RIGHTFILL;
 
 int [] balloons; // balloons is an array of 30 RGB values
 
 int currentBalloon = 0;
 long lastChecked;
+
+int h=1;
+int numBalloons=10;
+int balloonSpeed=10;
+int fillNum = 10;
+int spotNum = -1;
 
 void setup() {
   size(600, 200);
@@ -23,64 +34,79 @@ void setup() {
 void draw() {
   background(0);
   if (mode == RAINBOW) setRainbow();
-  else if (mode == PULSE) setPulse(0, 0, 0, 255);
   else if (mode == WAVE) setWave(0, 255, 255, 100);
   else if (mode == BLINK) setBlink(0, 255, 255, 100);
-  else if (mode==RAINBOWBLINK) setRainbowBlink(200);
+  else if (mode == RAINBOWBLINK) setRainbowBlink(200);
+  else if (mode == RIGHTWAVE) setRight(255,0,0);
+  else if (mode == RAINBOWWAVE) setRainbowWave(100);
+  else if (mode == LEFTWAVE) setLeft(255,0,0);
+  else if (mode == RIGHTFILL) setFillUpRight(255,0,0,500);
+  else if (mode == LEFTFILL) setFillUpLeft(255,0,0,500);
+  else if (mode == MOVINGRAINBOW) setMovingRainbow(100);
   drawBalloons();
-  transmitBalloons();
+  transmitBalloons();  
 }
 
 void transmitBalloons() {
   // send the balloon states with RF module
 }
 
-//Set rainbow for all balloons 
 void setRainbow() {
-  resetBalloons();
-  int r=255;
-  int g=0;
-  int b=0;
-  setBalloon(0, r,g,b);
-  g=g+100;
-  setBalloon(1, r,g,b);
-  g=g+100;
-  setBalloon(2, r,g,b);
-  g=g+55;
-  setBalloon(3, r,g,b);
-  r=r-100;
-  setBalloon(4, r,g,b);
-  r=r-155;b=b+100;
-  setBalloon(5, r,g,b);
-  b=b+100;
-  setBalloon(6, r,g,b);
-  b=b+155;g=g-100;
-  setBalloon(7, r,g,b);
-  g=g-100;
-  setBalloon(8, r,g,b);
-  g=g-100;r=r+100;
-  setBalloon(9,r,g,b);
-  r=r+100;
+  colorMode(HSB, 255);
+  for (int i = 0; i < balloons.length; i++) {
+    color c = color(i * 25, 255, 255);
+    setBalloon(i, int(red(c)), int(green(c)), int(blue(c)));
+  }
+  colorMode(RGB, 255);
 }
 
-void setPulse(int r, int g, int b, int wait) {
-  // TODO
+void setMovingRainbow(int wait) {
   resetBalloons();
+  colorMode(HSB, 255);
+  if (h*5<=260) {
+    if (millis() - lastChecked > wait) {
+      lastChecked = millis();
+      color c=color(h*5, 255, 255);
+      setBalloon(currentBalloon, int(red(c)), int(green(c)), int(blue(c)));
+      delay(300);
+      currentBalloon++;
+      if (currentBalloon > 10) currentBalloon = 0; 
+      h++;
+    }
+    colorMode(RGB, 255);
+  }
+  if (h*5>=255) {
+    h=0;
+  }
 }
 
 void setBlink(int r, int g, int b, int wait) {
   resetBalloons();
   if (millis() - lastChecked > wait) {
     lastChecked = millis();
-    on = !on; 
+    on = !on;
   }
-  if (on == true){
+  if (on == true) {
     setAllBalloons(r, g, b);
   }
-  if (on == false){
+  if (on == false) {
     resetBalloons();
   }
 }
+
+void setRainbowWave(int wait) {
+  resetBalloons();
+  colorMode(HSB, 255);
+  if (millis() - lastChecked > 5*wait) {
+    lastChecked = millis();
+    color c=color(currentBalloon*25, 255, 255);
+    setBalloon(currentBalloon, int(red(c)), int(green(c)), int(blue(c)));
+    currentBalloon++;
+    if (currentBalloon > 10) currentBalloon = 0;
+  }
+  colorMode(RGB, 255);
+}
+
 
 void setWave(int r, int g, int b, int wait) {
   resetBalloons();
@@ -93,18 +119,80 @@ void setWave(int r, int g, int b, int wait) {
 }
 
 //blinking rainbow
-void setRainbowBlink(int wait){
-   resetBalloons();
+void setRainbowBlink(int wait) {
+  resetBalloons();
   if (millis() - lastChecked > wait) {
     lastChecked = millis();
-    on = !on; 
+    on = !on;
   }
-  if (on == true){
+  if (on == true) {
     setRainbow();
   }
-  if (on == false){
+  if (on == false) {
     resetBalloons();
   }
+}
+
+void setRight(int r, int g, int b) {
+  balloonSpeed=100;
+  resetBalloons();
+  if (millis()-lastChecked > balloonSpeed) {
+    lastChecked = millis();
+    balloonSpeed+=50*currentBalloon;
+    delay(balloonSpeed);
+    currentBalloon++;
+    if (currentBalloon > 10) {
+      currentBalloon=0;
+    }
+  }
+  setBalloon(currentBalloon, r, g, b);
+}
+
+void setFillUpRight(int r, int g, int b, int wait) {
+  if (millis() - lastChecked > wait) {
+    lastChecked = millis();
+    spotNum++;
+    if (spotNum == fillNum) {
+      fillNum--;
+      spotNum = 0;
+    }
+  }
+  resetBalloons();
+  setBalloon(spotNum, r,g,b);
+  for (int i = fillNum; i < 10; i++) {
+    setBalloon(i, r,g,b);
+  }
+}
+
+void setFillUpLeft(int r, int g, int b, int wait) {
+  if (millis() - lastChecked > wait) {
+    lastChecked = millis();
+    fillNum--;
+    if (fillNum == spotNum) {
+      spotNum++;
+      fillNum = 10;
+    }
+  }
+  resetBalloons();
+  setBalloon(fillNum, r,g,b);
+  for (int i = spotNum; i >= 0; i--) {
+    setBalloon(i,r,g,b);
+  }
+}
+
+void setLeft(int r, int g, int b) {
+  balloonSpeed=100;
+  resetBalloons();
+  if (millis()-lastChecked > balloonSpeed) {
+    lastChecked = millis();
+    balloonSpeed+=50*((10-currentBalloon%10));
+    delay(balloonSpeed);
+    currentBalloon--;
+    if (currentBalloon < 0 ) {
+      currentBalloon=10;
+    }
+  }
+  setBalloon(currentBalloon, r, g, b);
 }
 
 void resetBalloons() {
@@ -121,8 +209,8 @@ void setBalloon(int index, int r, int g, int b) {
   }
 }
 
-void setAllBalloons(int r, int g, int b){
-  for (int i=0; i<10; i++){
+void setAllBalloons(int r, int g, int b) {
+  for (int i=0; i<10; i++) {
     setBalloon(i, r, g, b);
   }
 }
