@@ -1,4 +1,4 @@
-#define BALLOON_NUM 0
+#define BALLOON_NUM 1
 
 // MESH
 #include <painlessMesh.h>
@@ -11,10 +11,10 @@ SimpleList<uint32_t> nodes;
 void sendMessage() ; // Prototype
 Task taskSendMessage( TASK_SECOND * 1, TASK_FOREVER, &sendMessage ); // start with a one second interval
 bool onFlag = false;
-
+//
 #include <IRremoteESP8266.h>
 #include <IRsend.h>
-IRsend irsend(2);  // An IR LED is controlled by GPIO pin 4 (D2)
+IRsend irsend(5);  // An IR LED is controlled by GPIO pin 4 (D2)
 uint16_t irColor[67];
 uint16_t redData[67] = {9054, 4540,  546, 592,  542, 594,  540,
       594,  542, 594,  542, 594,  542, 594,
@@ -67,10 +67,15 @@ uint16_t whiteData[67] = {9078, 4504,  580, 556,  576, 578,  558, 578,  528, 606
 //uint16_t flashData[67] = {9078, 4498,  592, 546,  588, 568,  566, 568,  566, 568,  566, 568,  566, 568,  568, 568,  566, 568,  568, 1650,  590, 1652,  588, 1652,  590, 1652,  588, 1654,  590, 1652,  588, 1652,  590, 1652,  588, 1652,  588, 1654,  588, 1654,  590, 568,  566, 570,  564, 570,  564, 1652,  590, 570,  564, 570,  566, 570,  564, 570,  564, 1654,  588, 1652,  588, 1652,  590, 570,  566, 1652,  588};  // NEC FFE21D
 
 // NEOPIXELS
-#include <ws2812_i2s.h>
-#define NUM_LEDS 8
-static WS2812 ledstrip;
-static Pixel_t pixels[NUM_LEDS];
+#include <Adafruit_NeoPixel.h>
+// NeoPixel stick DIN pin
+#define DIN_PIN 4
+// How many NeoPixels on the stick?
+#define NUM_LEDS 10
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, DIN_PIN, NEO_GRB + NEO_KHZ800);
+//#include <ws2812_i2s.h>
+//static WS2812 ledstrip;
+//static Pixel_t pixels[NUM_LEDS];
 
 // INCOMING
 String incomingString;           // Incoming message with RGB values for each balloon
@@ -78,7 +83,10 @@ String incomingString;           // Incoming message with RGB values for each ba
 
 void setup() {
   Serial.begin(115200);
-  ledstrip.init(NUM_LEDS);
+  irsend.begin();
+//  ledstrip.init(NUM_LEDS);
+  strip.begin();
+  strip.show(); // Start with all pixels off
   mesh.setDebugMsgTypes(ERROR | DEBUG | CONNECTION);  // set before init() so that you can see startup messages
   mesh.init(MESH_SSID, MESH_PASSWORD, MESH_PORT);
   mesh.onReceive(&receivedCallback);
@@ -89,20 +97,36 @@ void setup() {
   mesh.scheduler.addTask( taskSendMessage );
   taskSendMessage.enable() ;
   randomSeed(analogRead(A0));
-
-  Serial.println("a rawData capture from IRrecvDumpV2 of red");
-  irsend.sendRaw(irColor, 67, 38);  // Send a raw data capture at 38kHz.
-  delay(500);
+//
+//  Serial.println("a rawData capture from IRrecvDumpV2 of red");
+//  irsend.sendRaw(irColor, 67, 38);  // Send a raw data capture at 38kHz.
+//  delay(500);
 }
 void loop() {
   mesh.update();
   setNeopixels();
+//  colorWipe(strip.Color(255, 0, 0), 50);
+//  delay(500);
+//    colorWipe(strip.Color(0, 255, 0), 50);
+
   setIRArray();
-  ledstrip.show(pixels);
+//  strip.show(pixels);
+//  ledstrip.show(pixels);
 
   Serial.println("a rawData capture from IRrecvDumpV2");
   irsend.sendRaw(irColor, 67, 38);  // Send a raw data capture at 38kHz.
-  delay(500);
+  delay(250);
+}
+
+
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t c, uint8_t wait) {
+  uint16_t i;
+  for (i = 0; i < strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
 }
 
 void setIRArray() {
@@ -226,12 +250,19 @@ void setNeopixels() {
   int r = getRed();
   int g = getGreen();
   int b = getBlue();
+  int c = strip.Color(r,g,b);
+
   
-  for (int i = 0; i < NUM_LEDS; i++) {
-    pixels[i].R = r;
-    pixels[i].G = g;
-    pixels[i].B = b;
+  for (int i = 0; i < strip.numPixels(); i++) {
+//    Serial.printf("using color %i on pixel %i\n", c, i);
+    strip.setPixelColor(i, c);
+   
+   // delay(50);
+//    pixels[i].R = r;
+//    pixels[i].G = g;
+//    pixels[i].B = b;
   }
+   strip.show();
 }
 
 

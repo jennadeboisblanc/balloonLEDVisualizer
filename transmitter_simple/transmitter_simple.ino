@@ -78,6 +78,7 @@ direction Direction;
 int numBalloons = 10;
 byte balloons[30] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+int colori = 0;
 
 ///////////////////////////////////////////////////////////
 // The important stuff
@@ -90,9 +91,12 @@ void setup() {
 }
 
 void loop() {
-  updateLightMode();
-  setLightMode();
+  //updateLightMode();
+  //setLightMode();
+  setAllBalloons(Wheel(colori%255));
+  colori+= 50;
   mesh.update();
+  delay(5000);
 }
 
 ///////////////////////////////////////////////////////////
